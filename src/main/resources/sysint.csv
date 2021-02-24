@@ -1,0 +1,13 @@
+Name;Length;Position; Value 
+eventType;1;1;M
+eventTimestamp;14;2;
+eventStatus;3;16;STA
+hasContract;7;19;
+hasMutType;2;26;MT
+resultStatus;2;28;
+foutkode1;4;30;
+foutoms1;100;34;
+fouttype1;1;134;
+id;36;135;
+received;24;171;
+filler;105;195;FILLER
