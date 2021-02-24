@@ -4,52 +4,63 @@ Command line utility to convert an excel file to a specific json or yaml format.
 ## usage
 java -jar excel-to-service.jar -s sourcefile [options...]
 
--s src/main/resources/sysint.xlsx -pretty -fr 2 -lr 13 -nc 1 -lc 2 -pc 3 -vc 4 -f yaml
-
 ```
- -?,--help <arg>           This help text.
- -d,--destination <arg>    The destination directory where the service.json/service.yaml should be created.
- -f,--format <arg>         The format into which the file should be converted [JSON, YAML].                           
- -fr,--firstRow <arg>      The first row to read
- -lc,--lengthCol <arg>     The column that contains the field length
- -lr,--lastRow <arg>       The last row to read
- -nc,--nameCol <arg>       The column that contains the field name
- -pc,--positionCol <arg>   The column that contains the field position
- -pretty                   To render output as pretty formatted json/yaml.
- -s,--source <arg>         The source file which should be converted.                       
- -vc,--valueCol <arg>      The column that contains the default field value.
+ -?,--help <arg>              This help text.
+ -d,--destination <arg>       The destination directory where the service.json/service.yaml should be created.
+ -f,--format <arg>            The format into which the file should be converted [JSON, YAML].
+ -fcf,--foutCodeField <arg>   The name of the fout code field w.o. number).
+ -fof,--foutOmsField <arg>    The name of the fout omschrijving field w.o. number).
+ -fr,--firstRow <arg>         The first row to read
+ -ftf,--foutTypeField <arg>   The name of the fout type field w.o. number).
+ -lc,--lengthCol <arg>        The column that contains the field length
+ -lr,--lastRow <arg>          The last row to read
+ -nc,--nameCol <arg>          The column that contains the field name
+ -pc,--positionCol <arg>      The column that contains the field position
+ -pretty                      To render output as pretty formatted json/yaml.
+ -rc,--resultCol <arg>        The column that contains a x if the field should be return in the data object
+ -s,--source <arg>            The source file which should be converted.
+ -sf,--statusField <arg>      The name of the field which indicates the status).
+ -sys,--system <arg>          The target system code (f.i. HAS).
+ -vc,--valueCol <arg>         The column that contains the default field value
                        
 ```
 
 ## input Excel (voorbeeld)
 
-| Name | Length  | Position  | Value  |
-| :----- | -----: | -----: | -----: |
-| eventType | 1 | 1 | M |
-| eventTimestamp | 14 | 2 | |
-| eventStatus | 3 | 16 | STA |
-| hasContract | 7 | 19 | |
-| hasMutType | 2 | 26 | MT |
-| resultStatus | 2 | 28 | |
-| foutkode1 | 4 | 30 | |
-| foutoms1 | 100 | 34 | |
-| fouttype1 | 1 | 134 | |
-| id | 36 | 135 | |
-| received | 24 | 171 | |
-| filler | 105 | 195 | FILLER |
+| Name | Length  | Position  | Value  | Result  |
+| :----- | -----: | -----: | -----: | -----: |
+| eventType | 1 | 1 | M | |
+| eventTimestamp | 14 | 2 | | |
+| eventStatus | 3 | 16 | STA | |
+| hasContract | 7 | 19 | | |
+| hasMutType | 2 | 26 | MT | |
+| resultStatus | 2 | 28 | | |
+| foutkode1 | 4 | 30 | | |
+| foutoms1 | 100 | 34 | | |
+| fouttype1 | 1 | 134 | | |
+| id | 36 | 135 | | x |
+| received | 24 | 171 | | x |
+| filler | 105 | 195 | FILLER | x |
 
 ## output YAML
 
-java -jar excel-to-service.jar 
--s src/main/resources/sysint.xlsx 
--pretty 
--fr 2 
--lr 13 
--nc 1 
--lc 2 
--pc 3 
--vc 4 
+java -jar excel-to-service.jar
+-sys HAS
+-s src/main/resources/sysint.xlsx
+-pretty
+-fr 2
+-lr 13
+-nc 1
+-lc 2
+-pc 3
+-vc 4
+-rc 5
+-fcf foutkode
+-fof foutoms
+-ftf fouttype
+-sf resultStatus
 -f yaml
+-d src/main/resources
 
 ```
 ---
@@ -94,7 +105,7 @@ HASREQ:
       value: FILLER
 HASRES:
   type: object
-  resDataStatus:
+  status:
     from: 28
     maxLength: 2
     ok:
@@ -128,6 +139,7 @@ HASRES:
 ## output json
 
 java -jar excel-to-service.jar
+-sys HAS
 -s src/main/resources/sysint.xlsx
 -pretty
 -fr 2
@@ -136,7 +148,13 @@ java -jar excel-to-service.jar
 -lc 2
 -pc 3
 -vc 4
+-rc 5
+-fcf foutkode
+-fof foutoms
+-ftf fouttype
+-sf resultStatus
 -f json
+-d src/main/resources
 
 ```
 {
@@ -195,7 +213,7 @@ java -jar excel-to-service.jar
   },
   "HASRES" : {
     "type" : "object",
-    "resDataStatus" : {
+    "status" : {
       "from" : 28,
       "maxLength" : 2,
       "ok" : [ "00" ]

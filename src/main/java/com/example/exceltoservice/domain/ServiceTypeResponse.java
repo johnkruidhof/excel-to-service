@@ -13,16 +13,16 @@ public class ServiceTypeResponse extends ServiceType {
 
     @Builder
     public ServiceTypeResponse(String type,
-                               ResDataStatus resDataStatus,
+                               ResDataStatus status,
                                List<ResponseFout> errors,
                                LinkedHashMap<String, ResData> data) {
         super(type);
-        this.resDataStatus = resDataStatus;
+        this.status = status;
         this.errors = errors;
         this.data = data;
     }
 
-    private ResDataStatus resDataStatus;
+    private ResDataStatus status;
     private List<ResponseFout> errors;
     private LinkedHashMap<String, ResData> data;
 }

@@ -10,15 +10,21 @@ import java.util.List;
 @Data
 public class ExcelToSFConverterConfig {
 
+	private String systeem;
 	private String sourceFile;
 	private String format;
+	private String foutCodeField;
+	private String foutOmsField;
+	private String foutTypeField;
+	private String statusField;
 	private boolean pretty = false;
-	private int firstRow = 0;
+	private int firstRow = 1;
 	private int lastRow = 0; // 0 -> no limit
-	private int nameCol = 0;
-	private int lengthCol = 1;
-	private int positionCol = 2;
-	private int valueCol = 3;
+	private int nameCol = 1;
+	private int lengthCol = 2;
+	private int positionCol = 3;
+	private int valueCol = 4;
+	private int resultCol = 5;
 	private String destinationFile;
 	private boolean writeToFile = false;
 
@@ -28,10 +34,16 @@ public class ExcelToSFConverterConfig {
 
 		ExcelToSFConverterConfig config = new ExcelToSFConverterConfig();
 
+		config.systeem = (cmd.hasOption("sys")) ? cmd.getOptionValue("sys") : "";
 		config.sourceFile = (cmd.hasOption("s")) ? cmd.getOptionValue("s") : null;
 
 		config.format = (cmd.hasOption("f") && (fl.contains(cmd.getOptionValue("f").toUpperCase()))) ?
 				cmd.getOptionValue("f").toUpperCase() : "YAML";
+
+		config.foutCodeField = (cmd.hasOption("fcf")) ? cmd.getOptionValue("fcf") : null;
+		config.foutOmsField = (cmd.hasOption("fof")) ? cmd.getOptionValue("fof") : null;
+		config.foutTypeField = (cmd.hasOption("ftf")) ? cmd.getOptionValue("ftf") : null;
+		config.statusField = (cmd.hasOption("sf")) ? cmd.getOptionValue("sf") : null;
 
 		if (cmd.hasOption("fr")) {
 			config.setFirstRow(setRowColValue(Integer.parseInt(cmd.getOptionValue("fr"))));
@@ -55,6 +67,10 @@ public class ExcelToSFConverterConfig {
 
 		if (cmd.hasOption("vc")) {
 			config.setValueCol(setRowColValue(Integer.parseInt(cmd.getOptionValue("vc"))));
+		}
+
+		if (cmd.hasOption("rc")) {
+			config.setResultCol(setRowColValue(Integer.parseInt(cmd.getOptionValue("rc"))));
 		}
 
 		if(cmd.hasOption("d")) {

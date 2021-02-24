@@ -14,4 +14,5 @@ public class RowDataSource extends RowData {
     private String name;
     private Integer position;
     private String value;
+    private boolean result;
 }

@@ -12,6 +12,11 @@ public class ExcelToServiceFile {
 	public static void main( String[] args ) throws Exception
     {
 		Options options = new Options();
+		options.addOption("sys", "system", true, "The target system code (f.i. HAS).");
+		options.addOption("fcf", "foutCodeField", true, "The name of the fout code field w.o. number).");
+		options.addOption("fof", "foutOmsField", true, "The name of the fout omschrijving field w.o. number).");
+		options.addOption("ftf", "foutTypeField", true, "The name of the fout type field w.o. number).");
+		options.addOption("sf", "statusField", true, "The name of the field which indicates the status).");
 		options.addOption("s", "source", true, "The source file which should be converted.");
 		options.addOption("f", "format", true, "The format into which the file should be converted [JSON, YAML].");
 		options.addOption("fr", "firstRow", true, "The first row to read");
@@ -20,6 +25,7 @@ public class ExcelToServiceFile {
 		options.addOption("lc", "lengthCol", true, "The column that contains the field length");
 		options.addOption("pc", "positionCol", true, "The column that contains the field position");
 		options.addOption("vc", "valueCol", true, "The column that contains the default field value");
+		options.addOption("rc", "resultCol", true, "The column that contains a x if the field should be return in the data object");
 		options.addOption("d", "destination", true, "The destination directory where the service.json/service.yaml should be created.");
 		options.addOption(new Option("pretty", "To render output as pretty formatted json/yaml."));
 		options.addOption("?", "help", true, "This help text.");

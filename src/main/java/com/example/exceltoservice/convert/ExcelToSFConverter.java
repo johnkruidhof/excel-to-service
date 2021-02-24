@@ -29,13 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExcelToSFConverter {
 
-	public static final String SYSTEM = "HAS";
-	public static final String FOUTKODE = "foutkode";
-	public static final String FOUTOMS = "foutoms";
-	public static final String FOUTTYPE = "fouttype";
-	public static final String STATUS = "resultStatus";
-	public static final List<String> DATA = List.of("id", "received", "filler");
-
 	private final com.example.exceltoservice.convert.ExcelToSFConverterConfig config;
 	
 	public static String convert(com.example.exceltoservice.convert.ExcelToSFConverterConfig config) throws InvalidFormatException, IOException {
@@ -59,6 +52,7 @@ public class ExcelToSFConverter {
 		int lengthCol = config.getLengthCol();
 		int positionCol = config.getPositionCol();
 		int valueCol = config.getValueCol();
+		int resultCol = config.getResultCol();
 		LinkedHashMap<String, RowDataSource> list = new LinkedHashMap<>();
 
 		// Only read the first sheet
@@ -84,6 +78,8 @@ public class ExcelToSFConverter {
 							rowData.setPosition((int) cell.getNumericCellValue());
 						} else if (k == valueCol) { // Value
 							rowData.setValue(cleanString(cell.getStringCellValue()));
+						} else if (k == resultCol) { // Value
+							rowData.setResult(cleanString(cell.getStringCellValue()).equalsIgnoreCase("X"));
 						}
 					}
 				}
@@ -115,14 +111,14 @@ public class ExcelToSFConverter {
 		LinkedHashMap<String, ResData> dataList = getDataList(list);
 
 		LinkedHashMap<String, ServiceType> service = new LinkedHashMap<>();
-		service.put(String.format("%s%s", SYSTEM, "REQ"), ServiceTypeRequest.builder()
+		service.put(String.format("%s%s", config.getSysteem(), "REQ"), ServiceTypeRequest.builder()
 				.type("object")
 				.properties(properties)
 				.build());
 
-		service.put(String.format("%s%s", SYSTEM, "RES"), ServiceTypeResponse.builder()
+		service.put(String.format("%s%s", config.getSysteem(), "RES"), ServiceTypeResponse.builder()
 				.type("object")
-				.resDataStatus(resDataStatus)
+				.status(resDataStatus)
 				.errors(responseFoutList)
 				.data(dataList)
 				.build());
@@ -136,13 +132,17 @@ public class ExcelToSFConverter {
 		return str.replace("\n", "").replace("\r", "");
 	}
 
-	private static List<ResponseFout> getFoutList(LinkedHashMap<String, RowDataSource> list) {
+	private List<ResponseFout> getFoutList(LinkedHashMap<String, RowDataSource> list) {
 		List<ResponseFout> responseFoutList = new ArrayList<>();
 
+		String foutCodeField = config.getFoutCodeField();
+		String foutOmsField = config.getFoutOmsField();
+		String foutTypeField = config.getFoutTypeField();
+
 		for (int i = 1; i <= 10; i++) {
-			ResDataFoutItem itemCode = getFoutItem(list, i, FOUTKODE);
-			ResDataFoutItem itemOms = getFoutItem(list, i, FOUTOMS);
-			ResDataFoutItem itemType = getFoutItem(list, i, FOUTTYPE);
+			ResDataFoutItem itemCode = getFoutItem(list, i, foutCodeField);
+			ResDataFoutItem itemOms = getFoutItem(list, i, foutOmsField);
+			ResDataFoutItem itemType = getFoutItem(list, i, foutTypeField);
 
 			if (itemCode == null || itemOms == null || itemType == null) {
 				continue;
@@ -174,28 +174,24 @@ public class ExcelToSFConverter {
 	private static LinkedHashMap<String, ResData> getDataList(LinkedHashMap<String, RowDataSource> list) {
 		LinkedHashMap<String, ResData> dataList = new LinkedHashMap<>();
 
-		DATA.forEach(s -> {
-			ResData resData = getDataItem(list, s);
-			if (resData != null) dataList.put(s, resData);
+		list.forEach((key, rowDataSource) -> {
+			if (rowDataSource.isResult()) {
+				dataList.put(key, ResData.builder()
+						.from(rowDataSource.getPosition())
+						.maxLength(rowDataSource.getMaxLength())
+						.build());
+			}
 		});
 
 		return dataList;
 	}
 
-	private static ResData getDataItem(LinkedHashMap<String, RowDataSource> list, String fieldName) {
-		if (list.containsKey(fieldName)) {
-			RowDataSource source = list.get(fieldName);
-			return ResData.builder()
-					.from(source.getPosition())
-					.maxLength(source.getMaxLength())
-					.build();
-		}
-		return null;
-	}
+	private ResDataStatus getStatus(LinkedHashMap<String, RowDataSource> list) {
 
-	private static ResDataStatus getStatus(LinkedHashMap<String, RowDataSource> list) {
-		if (list.containsKey(STATUS)) {
-			RowDataSource source = list.get(STATUS);
+		String statusField = config.getStatusField();
+
+		if (list.containsKey(statusField)) {
+			RowDataSource source = list.get(statusField);
 			return ResDataStatus.BBuilder()
 					.from(source.getPosition())
 					.maxLength(source.getMaxLength())
